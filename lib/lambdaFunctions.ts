@@ -43,3 +43,28 @@ export function getEventReplaysFn(scope: any, table: Table) {
     return new lambda.Function(scope, 'GetEventReplaysFn', props);
 }
 
+export function voteUpReplayFn(scope: any, table: Table) {
+    const props = {
+        ...defaultProps,
+        code: lambda.Code.fromAsset('lambdas/events-replay-voting'),
+        handler: 'index.upHandler',
+        functionName: 'replay-vote-up',
+        environment: {
+            REPLAYS_TABLE_NAME: table.tableName
+        }
+    };
+    return new lambda.Function(scope, 'VoteUpReplayFn', props);
+}
+
+export function voteDownReplayFn(scope: any, table: Table) {
+    const props = {
+        ...defaultProps,
+        code: lambda.Code.fromAsset('lambdas/events-replay-voting'),
+        handler: 'index.downHandler',
+        functionName: 'replay-vote-down',
+        environment: {
+            REPLAYS_TABLE_NAME: table.tableName
+        }
+    };
+    return new lambda.Function(scope, 'VoteDownReplayFn', props);
+}
