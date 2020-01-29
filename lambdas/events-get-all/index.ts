@@ -13,10 +13,10 @@ async function handler() {
 
         const eventDtos = result.Items?.map(item => ({
             eventId: item['event_id'].S,
-            name: item['name'].S,
-            desc: item['desc'].S,
+            summary: item['summary'].S,
+            details: item['details'].S,
             location: item['location'].S,
-            date: item['date'].S
+            eventTime: item['event_time'].S
         }));
 
         response = {

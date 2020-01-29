@@ -1,9 +1,8 @@
 import * as cdk from '@aws-cdk/core';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigateway from '@aws-cdk/aws-apigateway';
 
 import {createEventsTable, createReplaysTable, createUserVotesTable} from './dynamoDbTables';
+import {createEventFn, getEventsFn, getEventReplaysFn} from './lambdaFunctions';
 
 export class OctankPocStack extends cdk.Stack {
 
@@ -16,37 +15,24 @@ export class OctankPocStack extends cdk.Stack {
     const userVotesTable = createUserVotesTable(this);
 
     // Lambda handlers
-    const createEventFn = new lambda.Function(this, 'CreateEventFn', {
-      runtime: lambda.Runtime.NODEJS_12_X,
-      code: lambda.Code.fromAsset('lambdas/events-create'),
-      handler: 'index.handler',
-      functionName: 'events-create',
-      environment: {
-        EVENTS_TABLE_NAME: eventsTable.tableName
-      },
-      tracing: lambda.Tracing.ACTIVE
-    });
-
-    const getEventsFn = new lambda.Function(this, 'GetEventsFn', {
-      runtime: lambda.Runtime.NODEJS_12_X,
-      code: lambda.Code.fromAsset('lambdas/events-get-all'),
-      handler: 'index.handler',
-      functionName: 'events-get-all',
-      environment: {
-        EVENTS_TABLE_NAME: eventsTable.tableName
-      },
-      tracing: lambda.Tracing.ACTIVE
-    });
+    const createEventHandler = createEventFn(this, eventsTable);
+    const getEventsHandler = getEventsFn(this, eventsTable);
+    const getEventReplaysHandler = getEventReplaysFn(this, replaysTable);
 
     // API Gateway
     const api = new apigateway.RestApi(this, 'octank-poc-api');
     const events = api.root.addResource('events');
-    events.addMethod('POST', new apigateway.LambdaIntegration(createEventFn));
-    events.addMethod('GET', new apigateway.LambdaIntegration(getEventsFn));
+    events.addMethod('POST', new apigateway.LambdaIntegration(createEventHandler));
+    events.addMethod('GET', new apigateway.LambdaIntegration(getEventsHandler));
+
+    const event = events.addResource('{event_id}');
+    const replays = event.addResource('replays');
+    replays.addMethod('GET', new apigateway.LambdaIntegration(getEventReplaysHandler));
 
     // IAM permissions
-    eventsTable.grantWriteData(createEventFn);
-    eventsTable.grantReadData(getEventsFn);
+    eventsTable.grantWriteData(createEventHandler);
+    eventsTable.grantReadData(getEventsHandler);
+    replaysTable.grantReadData(getEventReplaysHandler);
   }
 
 }

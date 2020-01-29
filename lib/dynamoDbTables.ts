@@ -19,7 +19,7 @@ export function createReplaysTable(scope: any) {
         ...defaultProps,
         tableName: 'Replays',
         partitionKey: {name: 'event_id', type: dynamodb.AttributeType.STRING},
-        sortKey: {name: 'time', type: dynamodb.AttributeType.STRING}
+        sortKey: {name: 'replay_time', type: dynamodb.AttributeType.STRING}
     }
     return new dynamodb.Table(scope, 'Replays', props);
 }

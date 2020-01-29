@@ -13,10 +13,10 @@ async function handler(event: any) {
             TableName: process.env.EVENTS_TABLE_NAME || 'Events',        
             Item: {
                 'event_id': {S: eventId},
-                'name': {S: eventDto.name},
-                'desc': {S: eventDto.desc},
+                'summary': {S: eventDto.summary},
+                'details': {S: eventDto.details},
                 'location': {S: eventDto.location},
-                'date': {S: eventDto.date}
+                'event_time': {S: eventDto.event_time}
             }
         };    
         await client.putItem(params).promise();        
