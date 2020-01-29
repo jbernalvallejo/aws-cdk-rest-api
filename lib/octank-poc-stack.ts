@@ -27,13 +27,26 @@ export class OctankPocStack extends cdk.Stack {
       tracing: lambda.Tracing.ACTIVE
     });
 
+    const getEventsFn = new lambda.Function(this, 'GetEventsFn', {
+      runtime: lambda.Runtime.NODEJS_12_X,
+      code: lambda.Code.fromAsset('lambdas/events-get-all'),
+      handler: 'index.handler',
+      functionName: 'events-get-all',
+      environment: {
+        EVENTS_TABLE_NAME: eventsTable.tableName
+      },
+      tracing: lambda.Tracing.ACTIVE
+    });
+
     // API Gateway
     const api = new apigateway.RestApi(this, 'octank-poc-api');
     const events = api.root.addResource('events');
     events.addMethod('POST', new apigateway.LambdaIntegration(createEventFn));
+    events.addMethod('GET', new apigateway.LambdaIntegration(getEventsFn));
 
     // IAM permissions
-    eventsTable.grantReadWriteData(createEventFn);
+    eventsTable.grantWriteData(createEventFn);
+    eventsTable.grantReadData(getEventsFn);
   }
 
 }

@@ -24,7 +24,7 @@ async function handler(event: any) {
         response = {
             statusCode: 201,
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({...eventDto, event_id: eventId})
+            body: JSON.stringify({...eventDto, eventId: eventId})
         };   
 
     } catch (e) {
