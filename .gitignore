@@ -9,3 +9,4 @@ cdk.out
 
 misc/octank-poc-cdk-credentials.csv
 configure-cdk-user.sh
+dist
